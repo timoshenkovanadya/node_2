@@ -1,6 +1,7 @@
 const http = require("http");
 const fs = require("fs");
-const articlesControllers = require("./controllers/articles");
+const articlesController = require("./controllers/articles");
+const commentsController = require("./controllers/comments");
 const helpers = require("./helpers");
 
 fs.readFile("./articles.json", (error) => {
@@ -9,24 +10,17 @@ fs.readFile("./articles.json", (error) => {
   const port = 3000;
 
   const endpointMapper = {
-    "/api/articles/readall": articlesControllers.readall,
-    "/api/articles/read": articlesControllers.read,
-    "/api/articles/create": articlesControllers.create,
-    "/api/articles/update": articlesControllers.update,
-    "/api/articles/delete": articlesControllers.deleteArticle,
-    // '/news': constrollers.getNews,
-    // '/news/create': constrollers.addNews,
-    // '/news/update': constrollers.updateNews,
-    // '/news/text': constrollers.getFile
+    "/api/articles/readall": articlesController.readall,
+    "/api/articles/read": articlesController.read,
+    "/api/articles/create": articlesController.create,
+    "/api/articles/update": articlesController.update,
+    "/api/articles/delete": articlesController.deleteArticle,
+    "/api/comments/create": commentsController.create,
+    "/api/comments/delete": commentsController.deleteComment,
   };
 
-  
-
   const server = http.createServer((req, res) => {
-    console.log(req.url);
-    res
     const { url } = helpers.parseUrl(req.url);
-    console.log(url);
     const handler = endpointMapper[url.toString()];
 
     if (handler) {
