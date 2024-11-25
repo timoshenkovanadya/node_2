@@ -11,19 +11,20 @@ fs.readFile("./articles.json", (error) => {
   const endpointMapper = {
     "/api/articles/readall": articlesControllers.readall,
     "/api/articles/read": articlesControllers.read,
+    "/api/articles/create": articlesControllers.create,
+    "/api/articles/update": articlesControllers.update,
+    "/api/articles/delete": articlesControllers.deleteArticle,
     // '/news': constrollers.getNews,
     // '/news/create': constrollers.addNews,
     // '/news/update': constrollers.updateNews,
     // '/news/text': constrollers.getFile
   };
 
-  function send404(req, res) {
-    res.statusCode = 404;
-    res.end("404 Page Not Found");
-  }
+  
 
   const server = http.createServer((req, res) => {
     console.log(req.url);
+    res
     const { url } = helpers.parseUrl(req.url);
     console.log(url);
     const handler = endpointMapper[url.toString()];
@@ -31,7 +32,7 @@ fs.readFile("./articles.json", (error) => {
     if (handler) {
       handler(req, res);
     } else {
-      send404(req, res);
+      helpers.send404(req, res);
     }
   });
 
