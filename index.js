@@ -3,30 +3,74 @@ const http = require('http');
 const hostname = '127.0.0.1';
 const port = 3000;
 
-const server = http.createServer((req, res) => {
- parseBodyJson(req, (err, payload) => {
- const c = { c: payload.a + payload.b };
+const handlers = {
+  '/sum': sum,
+  '/mult': multiply,
+};
 
- res.statusCode = 200;
- res.setHeader('Content-Type', 'application/json');
- res.end( JSON.stringify(c) );
- });
+const server = http.createServer((req, res) => {
+  parseBodyJson(req, (err, payload) => {
+    if (err) {
+      res.statusCode = 400;
+      res.setHeader('Content-Type', 'application/json');
+      res.end(JSON.stringify({ error: 'JSON input error' }));
+      return;
+    }
+
+    const handler = getHandler(req.url);
+    handler(req, res, payload, (err, result) => {
+      if (err) {
+        res.statusCode = err.code;
+        res.setHeader('Content-Type', 'application/json');
+        res.end(JSON.stringify(err));
+        return;
+      }
+
+      res.statusCode = 200;
+      res.setHeader('Content-Type', 'application/json');
+      res.end(JSON.stringify(result));
+    });
+  });
 });
 
 server.listen(port, hostname, () => {
- console.log(`Server running at http://${hostname}:${port}/`);
+  console.log(`Server running at http://${hostname}:${port}/`);
 });
 
+function getHandler(url) {
+  return handlers[url] || notFound;
+}
+
+function sum(req, res, payload, cb) {
+  const result = { c: payload.a + payload.b };
+  cb(null, result);
+}
+
+function multiply(req, res, payload, cb) { const result = { c: payload.a * payload.b }; cb(null, result); }
+
+function notFound(req, res, payload, cb) {
+  cb({ code: 404, message: 'Not found' });
+}
+
 function parseBodyJson(req, cb) {
- let body = [];
+  let body = [];
 
- req.on('data', function(chunk) {
- body.push(chunk);
- }).on('end', function() {
- body = Buffer.concat(body).toString();
+  req.on('data', function(chunk) {
+    body.push(chunk);
+  }).on('end', function() {
+    body = Buffer.concat(body).toString();
 
- let params = JSON.parse(body);
+    if (!body) {
+      return cb(new Error('There is no body'));
+    }
 
- cb(null, params);
- });
+    let params;
+    try {
+      params = JSON.parse(body);
+    } catch (error) {
+      return cb(error);
+    }
+
+    cb(null, params);
+  });
 }
