@@ -36,8 +36,11 @@ function parseUrl(url) {
   };
 }
 
-function logResponse(response) {
-  const logEntry = `${new Date().toISOString()} - ${response}\n`;
+function logResponse(req, res, body) {
+  const text = body
+    ? `${res.statusCode} ${req.method} ${req.url} body: ${body}`
+    : `${res.statusCode} ${req.method} ${req.url}`;
+  const logEntry = `${new Date().toISOString()} - ${text}\n`;
   fs.appendFile(logFilePath, logEntry, (err) => {
     if (err) {
       console.error("Failed to write to log file", err);
@@ -45,24 +48,24 @@ function logResponse(response) {
   });
 }
 
-function send400(_, res) {
-  const errorMessage = "400 Invalid parameters";
+function send400(req, res, body) {
   res.statusCode = 400;
-  logResponse(errorMessage);
-  res.end(errorMessage);
-}
-function send404(_, res) {
-  const errorMessage = "404 Page Not Found";
-  res.statusCode = 404;
-  logResponse(errorMessage);
-  res.end(errorMessage);
+  logResponse(req, res, body);
+  res.end(
+    JSON.stringify({ code: res.statusCode, message: "Invalid parameters" })
+  );
 }
 
-function send500(_, res) {
-  const errorMessage = "500 Server Error";
+function send404(req, res, body) {
+  res.statusCode = 404;
+  logResponse(req, res, body);
+  res.end(JSON.stringify({ code: res.statusCode, message: "Not found" }));
+}
+
+function send500(req, res, body) {
   res.statusCode = 500;
-  logResponse(errorMessage);
-  res.end(errorMessage);
+  logResponse(req, res, body);
+  res.end(JSON.stringify({ code: res.statusCode, message: "Server error" }));
 }
 
 module.exports = {

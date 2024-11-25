@@ -7,7 +7,7 @@ function readall(req, res) {
   res.setHeader("Content-Type", "application/json; charset=utf-8");
   fs.readFile(DATA_PATH, (error, buffer) => {
     if (error) {
-      helpers.send500();
+      helpers.send500(req, res);
       return;
     }
     const data = JSON.parse(buffer);
@@ -18,6 +18,7 @@ function readall(req, res) {
       return { ...rest, comments: fullComments };
     });
     res.write(JSON.stringify(articlesWithComments));
+    helpers.logResponse(req, res);
     res.end();
   });
 }
@@ -30,18 +31,22 @@ function read(req, res) {
   });
   req.on("end", () => {
     const id = JSON.parse(body)?.id;
-    if (!id || typeof id !== "number" || typeof id !== "string")
-      helpers.send400();
+    if (!id || (typeof id !== "number" && typeof id !== "string"))
+      helpers.send400(req, res, body);
 
     fs.readFile(DATA_PATH, (error, buffer) => {
       if (error) {
-        helpers.send500();
+        helpers.send500(req, res, body);
         return;
       }
       const data = JSON.parse(buffer);
       const article = data.articles.find((item) => item.id === id.toString());
-      if (!article) helpers.send400();
+      if (!article) {
+        helpers.send400(req, res, body);
+        return;
+      }
       res.write(JSON.stringify(article));
+      helpers.logResponse(req, res, body);
       res.end();
     });
   });
@@ -63,13 +68,13 @@ function create(req, res) {
       typeof newArticle.author !== "string" ||
       isNaN(new Date(newArticle.date))
     ) {
-      helpers.send400();
+      helpers.send400(req, res, body);
       return;
     }
 
     fs.readFile(DATA_PATH, (error, buffer) => {
       if (error) {
-        helpers.send500();
+        helpers.send500(req, res, body);
         return;
       }
       const data = JSON.parse(buffer);
@@ -81,7 +86,9 @@ function create(req, res) {
         if (err) throw err;
       });
       res.write(JSON.stringify(newArticle));
+      res.statusCode = 201;
       res.end();
+      helpers.logResponse(req, res, body);
     });
   });
 }
@@ -98,13 +105,13 @@ function update(req, res) {
       !dataObj ||
       (typeof dataObj.id !== "number" && typeof dataObj.id !== "string")
     ) {
-      helpers.send400();
+      helpers.send400(req, res, body);
       return;
     }
 
     fs.readFile(DATA_PATH, (error, buffer) => {
       if (error) {
-        helpers.send500();
+        helpers.send500(req, res, body);
         return;
       }
 
@@ -124,7 +131,7 @@ function update(req, res) {
           isNaN(new Date(dataObj.date))) ||
         Object.keys(dataObj).some((key) => !oldArticle[key])
       ) {
-        helpers.send400();
+        helpers.send400(req, res, body);
         return;
       }
       const newArticle = { ...oldArticle, ...dataObj };
@@ -135,6 +142,7 @@ function update(req, res) {
       });
       res.write(JSON.stringify(newArticle));
       res.end();
+      helpers.logResponse(req, res, body);
     });
   });
 }
@@ -151,13 +159,13 @@ function deleteArticle(req, res) {
       !dataObj ||
       (typeof dataObj.id !== "number" && typeof dataObj.id !== "string")
     ) {
-      helpers.send400();
+      helpers.send400(req, res, body);
       return;
     }
 
     fs.readFile(DATA_PATH, (error, buffer) => {
       if (error) {
-        helpers.send500();
+        helpers.send500(req, res, body);
         return;
       }
 
@@ -168,7 +176,7 @@ function deleteArticle(req, res) {
       const oldArticle = data.articles[index];
 
       if (!oldArticle) {
-        helpers.send400();
+        helpers.send400(req, res, body);
         return;
       }
       if (oldArticle.comments) {
@@ -182,6 +190,7 @@ function deleteArticle(req, res) {
       });
       res.write(JSON.stringify(`Article id=${dataObj.id} deleted`));
       res.end();
+      helpers.logResponse(req, res, body);
     });
   });
 }
