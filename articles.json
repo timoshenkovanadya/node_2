@@ -1,1 +1,21 @@
-{"articles":[{"id":"1","title":"Test article","text":"Hello, test article","date":123456789,"author":"Nadzeya","comments":["1"]}],"comments":[{"id":"1","articleId":"1","text":"Test comment","date":987654321,"author":"Nastya"}]}
+{
+  "articles": [
+    {
+      "title": "Test article2",
+      "text": "Hello, test article2",
+      "date": 1234454545,
+      "author": "Alice",
+      "comments": [],
+      "id": "2"
+    },
+    {
+      "title": "Test article3 updated",
+      "text": "Hello, test article2",
+      "date": 1234454545,
+      "author": "Alice Pancake 2",
+      "comments": [],
+      "id": "3"
+    }
+  ],
+  "comments": []
+}

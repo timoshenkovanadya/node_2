@@ -35,11 +35,11 @@ function create(req, res) {
         ({ id }) => id === newComment.articleId
       );
       if (!article) {
-        helpers.send400(res);
+        helpers.send400(req, res, body);
         return;
       }
 
-      const id = (Number(data.comments?.at(-1)?.id) + 1).toString();
+      const id = (Number(data.comments?.at(-1)?.id) || 0 + 1).toString();
       newComment.id = id;
       data.comments.push(newComment);
       article.comments.push(newComment.id);

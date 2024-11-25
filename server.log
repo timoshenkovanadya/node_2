@@ -1,0 +1,52 @@
+2024-11-25T20:55:42.952Z - 200 GET /api/articles/readall
+2024-11-25T21:02:40.117Z - 200 GET /api/articles/readall
+2024-11-25T21:03:02.434Z - 200 POST /api/articles/read body: {
+	"id": "1"
+}
+2024-11-25T21:04:09.870Z - 201 POST /api/articles/create body: {
+    "title": "Test article2",
+    "text": "Hello, test article2",
+    "date": 1234454545,
+    "author": "Alice"
+}
+2024-11-25T21:04:32.888Z - 201 POST /api/articles/create body: {
+    "title": "Test article2",
+    "text": "Hello, test article2",
+    "date": 1234454545,
+    "author": "Alice"
+}
+2024-11-25T21:04:37.601Z - 200 DELETE /api/articles/delete body: {
+    "id": "1"
+}
+2024-11-25T21:04:59.570Z - 400 POST /api/articles/update body: {
+    "title": "Test article3 updated",
+    "author": "Alice Pancake 2",
+    "id": "rrr"
+}
+2024-11-25T21:08:23.046Z - 200 POST /api/articles/update body: {
+    "title": "Test article3 updated",
+    "author": "Alice Pancake 2",
+    "id": "3"
+}
+2024-11-25T21:10:51.455Z - 400 POST /api/comments/create body: {
+    "articleId": "1",
+    "text": "Test comment2",
+    "date": 987654321,
+    "author": "Nastya2222"
+}
+2024-11-25T21:11:40.444Z - 201 POST /api/comments/create body: {
+    "articleId": "2",
+    "text": "Test comment2",
+    "date": 987654321,
+    "author": "Nastya2222"
+}
+2024-11-25T21:13:28.539Z - 200 GET /api/articles/readall
+2024-11-25T21:14:52.260Z - 201 POST /api/comments/create body: {
+    "articleId": "2",
+    "text": "Test comment2",
+    "date": 987654321,
+    "author": "Nastya2222"
+}
+2024-11-25T21:16:19.701Z - 200 DELETE /api/comments/delete body: {
+    "id": "1"
+}
