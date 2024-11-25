@@ -1,76 +1,41 @@
-const http = require('http');
+const http = require("http");
+const fs = require("fs");
+const articlesControllers = require("./controllers/articles");
+const helpers = require("./helpers");
 
-const hostname = '127.0.0.1';
-const port = 3000;
+fs.readFile("./articles.json", (error) => {
+  if (error) return;
+  const hostname = "127.0.0.1";
+  const port = 3000;
 
-const handlers = {
-  '/sum': sum,
-  '/mult': multiply,
-};
+  const endpointMapper = {
+    "/api/articles/readall": articlesControllers.readall,
+    "/api/articles/read": articlesControllers.read,
+    // '/news': constrollers.getNews,
+    // '/news/create': constrollers.addNews,
+    // '/news/update': constrollers.updateNews,
+    // '/news/text': constrollers.getFile
+  };
 
-const server = http.createServer((req, res) => {
-  parseBodyJson(req, (err, payload) => {
-    if (err) {
-      res.statusCode = 400;
-      res.setHeader('Content-Type', 'application/json');
-      res.end(JSON.stringify({ error: 'JSON input error' }));
-      return;
+  function send404(req, res) {
+    res.statusCode = 404;
+    res.end("404 Page Not Found");
+  }
+
+  const server = http.createServer((req, res) => {
+    console.log(req.url);
+    const { url } = helpers.parseUrl(req.url);
+    console.log(url);
+    const handler = endpointMapper[url.toString()];
+
+    if (handler) {
+      handler(req, res);
+    } else {
+      send404(req, res);
     }
+  });
 
-    const handler = getHandler(req.url);
-    handler(req, res, payload, (err, result) => {
-      if (err) {
-        res.statusCode = err.code;
-        res.setHeader('Content-Type', 'application/json');
-        res.end(JSON.stringify(err));
-        return;
-      }
-
-      res.statusCode = 200;
-      res.setHeader('Content-Type', 'application/json');
-      res.end(JSON.stringify(result));
-    });
+  server.listen(port, hostname, () => {
+    console.log(`Server running at http://${hostname}:${port}/`);
   });
 });
-
-server.listen(port, hostname, () => {
-  console.log(`Server running at http://${hostname}:${port}/`);
-});
-
-function getHandler(url) {
-  return handlers[url] || notFound;
-}
-
-function sum(req, res, payload, cb) {
-  const result = { c: payload.a + payload.b };
-  cb(null, result);
-}
-
-function multiply(req, res, payload, cb) { const result = { c: payload.a * payload.b }; cb(null, result); }
-
-function notFound(req, res, payload, cb) {
-  cb({ code: 404, message: 'Not found' });
-}
-
-function parseBodyJson(req, cb) {
-  let body = [];
-
-  req.on('data', function(chunk) {
-    body.push(chunk);
-  }).on('end', function() {
-    body = Buffer.concat(body).toString();
-
-    if (!body) {
-      return cb(new Error('There is no body'));
-    }
-
-    let params;
-    try {
-      params = JSON.parse(body);
-    } catch (error) {
-      return cb(error);
-    }
-
-    cb(null, params);
-  });
-}

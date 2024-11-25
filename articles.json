@@ -1,0 +1,22 @@
+{
+    "articles": [
+      {
+        "id": "1",
+        "title": "Test article",
+        "text": "Hello, test article",
+        "date": 123456789,
+        "author": "Nadzeya",
+        "comments": ["1"]
+      }
+    ],
+    "comments": [
+      {
+        "id": "1",
+        "articleId": "1",
+        "text": "Test comment",
+        "date": 987654321,
+        "author": "Nastya"
+      }
+    ]
+  }
+  
